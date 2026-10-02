@@ -1,0 +1,39 @@
+name: CI
+
+# 触发条件：推送到 master 分支，或向 master 发起 PR 时运行
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# 允许工作流取消正在进行的旧运行，节省资源
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-check:
+    name: 语法检查与代码风格
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          python-version: "3.12"
+
+      - name: 安装依赖（flask 等）
+        run: uv sync --no-dev
+
+      - name: 语法检查（编译所有练习代码）
+        # compileall 仅做语法解析，不执行导入，因此不需要安装依赖
+        # 明确指定目录/文件，避免误编译 .venv 等第三方包
+        run: uv run python -m compileall -q excises *.py
+
+      - name: 代码风格检查（ruff）
+        # ruff 仅捕获真实错误（如未定义变量、重定义），忽略未使用导入/变量等练习中常见的无关告警
+        run: uvx ruff@latest check .

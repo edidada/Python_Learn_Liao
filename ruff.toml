@@ -1,0 +1,12 @@
+# Ruff 配置：用于 GitHub Actions 中的代码风格检查
+# 本项目为学习廖雪峰 Python 教程的练习仓库，配置保持宽松，
+# 只捕获真正的代码错误，不纠结于代码风格细节。
+
+line-length = 100
+target-version = "py312"
+
+[lint]
+# F: Pyflakes（未定义变量、重复定义等真实错误）
+select = ["F"]
+# 练习代码中常见的“未使用导入/变量”不视为错误
+ignore = ["F401", "F841"]
